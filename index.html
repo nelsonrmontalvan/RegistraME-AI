@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RegistraME - Teacher AI Planner</title>
-    <!-- Mantenemos Tailwind CDN para simplificar, aunque Vite podría procesarlo también -->
+    <!-- Mantenemos Tailwind CDN para simplificar el estilo sin configuración extra -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;800&family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
     <script>
@@ -29,6 +29,10 @@
           }
         }
       }
+    </script>
+    <script>
+      // Polyfill simple para asegurar que process.env no rompa la app en runtime si algo falla
+      window.process = window.process || { env: {} };
     </script>
     <style>
       body {
@@ -67,7 +71,7 @@
         }
       }
     </style>
-  <script type="importmap">
+<script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@^19.2.3",
