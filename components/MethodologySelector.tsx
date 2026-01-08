@@ -1,6 +1,5 @@
 import React from 'react';
 import { METHODOLOGIES, ICONS } from '../constants';
-import { Methodology } from '../types';
 import { CheckCircle2 } from 'lucide-react';
 
 interface Props {

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Download, Share2, ArrowLeft, Printer } from 'lucide-react';
+import { ArrowLeft, Printer } from 'lucide-react';
 
 interface Props {
   content: string;

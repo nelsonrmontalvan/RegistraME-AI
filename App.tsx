@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { EducationLevel, LessonRequest, MasterPlan } from './types';
 import { 
   generateDuaOverview, 
@@ -10,7 +10,7 @@ import { DisclaimerBanner } from './components/DisclaimerBanner';
 import { MethodologySelector } from './components/MethodologySelector';
 import { PlanDisplay } from './components/PlanDisplay';
 import { Sidebar } from './components/Sidebar';
-import { Rocket, Sparkles, Clock, BookOpen, GraduationCap, School, Menu, Lock, CheckCircle2 } from 'lucide-react';
+import { Rocket, Sparkles, Clock, BookOpen, GraduationCap, Menu, Lock, CheckCircle2 } from 'lucide-react';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dua-stem');

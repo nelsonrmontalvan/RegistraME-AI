@@ -1,5 +1,5 @@
 import React from 'react';
-import { Rocket, Target, ListOrdered, Table, Menu, X, FileText } from 'lucide-react';
+import { Rocket, Target, ListOrdered, Table, X, FileText } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
