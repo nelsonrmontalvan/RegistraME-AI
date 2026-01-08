@@ -52,6 +52,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, isOpen
         
         {/* Menu Section */}
         <div className="px-6 py-4">
+          <div className="text-[10px] font-bold text-winner-green mb-2 tracking-wider opacity-90">
+             Exclusivo para Usuarios de RegistraME V-PRO
+          </div>
           <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Planificación</span>
         </div>
 
@@ -119,7 +122,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, isOpen
                   JD
               </div>
               <div className="flex flex-col">
-                  <span className="text-sm font-bold text-white">Juan Docente</span>
+                  <span className="text-sm font-bold text-white">Docente</span>
                   <span className="text-xs text-winner-green flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-winner-green animate-pulse"></span>
                     Online
