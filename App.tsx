@@ -10,7 +10,7 @@ import { DisclaimerBanner } from './components/DisclaimerBanner';
 import { MethodologySelector } from './components/MethodologySelector';
 import { PlanDisplay } from './components/PlanDisplay';
 import { Sidebar } from './components/Sidebar';
-import { Rocket, Sparkles, Clock, BookOpen, GraduationCap, Menu, Lock, CheckCircle2 } from 'lucide-react';
+import { Rocket, Sparkles, Clock, BookOpen, GraduationCap, Menu, Lock, CheckCircle2, Languages } from 'lucide-react';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dua-stem');
@@ -35,7 +35,7 @@ const App: React.FC = () => {
   });
 
   // 1. Handle DUA & STEM (Initial) Generation
-  const handleGenerateCore = async () => {
+  const handleGenerateCore = async (lang: 'es' | 'en') => {
     if (!formData.subject || !formData.topic || !formData.duration || !formData.methodology) {
       setError("Por favor completa todos los campos requeridos para comenzar.");
       return;
@@ -43,7 +43,7 @@ const App: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await generateDuaOverview(formData as LessonRequest);
+      const result = await generateDuaOverview(formData as LessonRequest, lang);
       setMasterPlan(prev => ({ ...prev, duaContent: result }));
       setIsContextSet(true); // Unlock other tabs
     } catch (err) {
@@ -56,13 +56,14 @@ const App: React.FC = () => {
   // 2. Generic handler for other sections
   const handleGenerateSection = async (
     sectionKey: keyof MasterPlan, 
-    generatorFn: (req: LessonRequest) => Promise<string>
+    generatorFn: (req: LessonRequest, lang: 'es' | 'en') => Promise<string>,
+    lang: 'es' | 'en'
   ) => {
     if (!isContextSet) return;
     setLoading(true);
     setError(null);
     try {
-      const result = await generatorFn(formData as LessonRequest);
+      const result = await generatorFn(formData as LessonRequest, lang);
       setMasterPlan(prev => ({ ...prev, [sectionKey]: result }));
     } catch (err) {
       setError("Error generando la sección. Intenta de nuevo.");
@@ -85,18 +86,31 @@ const App: React.FC = () => {
   };
 
   // Render helpers
-  const renderEmptyState = (title: string, action: () => void, btnText: string) => (
+  const renderEmptyState = (title: string, onGenerate: (lang: 'es' | 'en') => void, spanishBtnText: string, englishBtnText: string) => (
     <div className="flex flex-col items-center justify-center py-20 animate-fade-in border-2 border-dashed border-white/10 rounded-xl bg-white/5">
        <Sparkles className="text-winner-gold w-12 h-12 mb-4" />
        <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
        <p className="text-gray-400 mb-6 text-center max-w-md">Utilizaremos los datos de tu lección ({formData.subject} - {formData.topic}) para generar esta sección.</p>
-       <button 
-         onClick={action}
-         className="px-6 py-3 bg-winner-purple hover:bg-winner-pink rounded-lg font-bold text-white transition-all shadow-lg flex items-center"
-       >
-         <Rocket size={18} className="mr-2" />
-         {btnText}
-       </button>
+       
+       <div className="flex flex-col md:flex-row gap-4">
+         {/* English Button */}
+         <button 
+           onClick={() => onGenerate('en')}
+           className="px-6 py-3 bg-gradient-to-r from-winner-teal to-winner-green hover:shadow-winner-teal/50 rounded-lg font-bold text-white transition-all shadow-lg flex items-center justify-center"
+         >
+           <Languages size={18} className="mr-2" />
+           {englishBtnText} (EN)
+         </button>
+
+         {/* Spanish Button */}
+         <button 
+           onClick={() => onGenerate('es')}
+           className="px-6 py-3 bg-gradient-to-r from-winner-purple to-winner-pink hover:shadow-winner-purple/50 rounded-lg font-bold text-white transition-all shadow-lg flex items-center justify-center"
+         >
+           <Rocket size={18} className="mr-2" />
+           {spanishBtnText}
+         </button>
+       </div>
     </div>
   );
 
@@ -231,8 +245,13 @@ const App: React.FC = () => {
                          <MethodologySelector selectedId={formData.methodology || null} onSelect={(id) => setFormData({...formData, methodology: id})} />
                       </div>
 
-                      <div className="flex justify-end mt-6">
-                        <button onClick={handleGenerateCore} className="px-8 py-3 bg-gradient-to-r from-winner-pink to-winner-purple rounded-xl font-bold text-white shadow-lg hover:shadow-winner-purple/50 transition-all flex items-center">
+                      <div className="flex flex-col md:flex-row justify-end mt-6 gap-4">
+                        <button onClick={() => handleGenerateCore('en')} className="px-8 py-3 bg-gradient-to-r from-winner-teal to-winner-green rounded-xl font-bold text-white shadow-lg hover:shadow-winner-teal/50 transition-all flex items-center justify-center">
+                           <Languages size={18} className="mr-2" />
+                           {masterPlan.duaContent ? 'Regenerate DUA Strategy (EN)' : 'Generate DUA Strategy (English)'}
+                        </button>
+                        
+                        <button onClick={() => handleGenerateCore('es')} className="px-8 py-3 bg-gradient-to-r from-winner-pink to-winner-purple rounded-xl font-bold text-white shadow-lg hover:shadow-winner-purple/50 transition-all flex items-center justify-center">
                            <Sparkles size={18} className="mr-2" />
                            {masterPlan.duaContent ? 'Regenerar Estrategia DUA' : 'Generar Estrategia DUA'}
                         </button>
@@ -250,7 +269,12 @@ const App: React.FC = () => {
                   !isContextSet ? renderLockedState() : (
                     masterPlan.objectivesContent 
                       ? <PlanDisplay content={masterPlan.objectivesContent} onReset={() => setMasterPlan(p => ({...p, objectivesContent: null}))} />
-                      : renderEmptyState("Definición de Objetivos", () => handleGenerateSection('objectivesContent', generateObjectives), "Generar Objetivos")
+                      : renderEmptyState(
+                          "Definición de Objetivos", 
+                          (lang) => handleGenerateSection('objectivesContent', generateObjectives, lang),
+                          "Generar Objetivos",
+                          "Generate Objectives"
+                        )
                   )
                )}
 
@@ -259,7 +283,12 @@ const App: React.FC = () => {
                   !isContextSet ? renderLockedState() : (
                     masterPlan.sequenceContent 
                       ? <PlanDisplay content={masterPlan.sequenceContent} onReset={() => setMasterPlan(p => ({...p, sequenceContent: null}))} />
-                      : renderEmptyState("Diseño de Secuencia Didáctica", () => handleGenerateSection('sequenceContent', generateSequence), "Generar Secuencia")
+                      : renderEmptyState(
+                          "Diseño de Secuencia Didáctica", 
+                          (lang) => handleGenerateSection('sequenceContent', generateSequence, lang), 
+                          "Generar Secuencia",
+                          "Generate Sequence"
+                        )
                   )
                )}
 
@@ -268,7 +297,12 @@ const App: React.FC = () => {
                   !isContextSet ? renderLockedState() : (
                     masterPlan.rubricContent 
                       ? <PlanDisplay content={masterPlan.rubricContent} onReset={() => setMasterPlan(p => ({...p, rubricContent: null}))} />
-                      : renderEmptyState("Creación de Rúbrica", () => handleGenerateSection('rubricContent', generateRubric), "Generar Rúbrica")
+                      : renderEmptyState(
+                          "Creación de Rúbrica", 
+                          (lang) => handleGenerateSection('rubricContent', generateRubric, lang), 
+                          "Generar Rúbrica",
+                          "Generate Rubric"
+                        )
                   )
                )}
 
