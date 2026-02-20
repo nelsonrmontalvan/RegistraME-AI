@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { ArrowLeft, Printer, Copy, Check, Download } from 'lucide-react';
+import { ArrowLeft, Printer, Copy, Check, Download, Share2, Heart, MessageCircle, Mail } from 'lucide-react';
 
 interface Props {
   content: string;
@@ -9,7 +9,13 @@ interface Props {
 
 export const PlanDisplay: React.FC<Props> = ({ content, onReset }) => {
   const [copied, setCopied] = useState(false);
+  const [liked, setLiked] = useState(false);
   
+  // Reset like state when content changes
+  useEffect(() => {
+    setLiked(false);
+  }, [content]);
+
   const handlePrint = () => {
     window.print();
   };
@@ -24,38 +30,109 @@ export const PlanDisplay: React.FC<Props> = ({ content, onReset }) => {
     }
   };
 
+  const handleLike = () => {
+    setLiked(!liked);
+    // Here we could save to localStorage or send an event if we had analytics
+    if (!liked) {
+      // Simple visual feedback could be added here
+    }
+  };
+
+  const handleShareWhatsApp = () => {
+    // WhatsApp limits URL length, so we truncate efficiently
+    const summary = content.substring(0, 1500) + (content.length > 1500 ? '...' : '');
+    const text = `*Planificación Generada con RegistraME AI*\n\n${summary}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleNativeShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Planificación RegistraME AI',
+          text: content,
+        });
+      } catch (err) {
+        console.log('Error sharing:', err);
+      }
+    } else {
+      handleCopy();
+      alert('La función de compartir nativa no está disponible en este dispositivo. El texto ha sido copiado al portapapeles.');
+    }
+  };
+
+  const handleFeedback = () => {
+    window.open('mailto:soporte@registrame.ai?subject=Feedback sobre Planificación Generada', '_blank');
+  };
+
   return (
     <div className="animate-fade-in pb-20">
       
       {/* Action Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 no-print gap-4">
+      <div className="flex flex-col xl:flex-row justify-between items-center mb-6 no-print gap-4">
         <button 
           onClick={onReset}
-          className="flex items-center text-gray-400 hover:text-white transition-colors self-start md:self-auto"
+          className="flex items-center text-gray-400 hover:text-white transition-colors self-start xl:self-auto"
         >
           <ArrowLeft size={20} className="mr-2" />
           Volver al diseño
         </button>
 
-        <div className="flex space-x-3 w-full md:w-auto">
+        <div className="flex flex-wrap gap-3 w-full xl:w-auto justify-center xl:justify-end">
+          {/* Social / Interaction Group */}
+          <div className="flex items-center bg-white/5 rounded-lg p-1 border border-white/10">
+             <button
+               onClick={handleLike}
+               className={`p-2 rounded-md transition-all ${liked ? 'text-pink-500 bg-pink-500/10' : 'text-gray-400 hover:text-pink-400 hover:bg-white/5'}`}
+               title="Me gusta esta planificación"
+             >
+               <Heart size={20} fill={liked ? "currentColor" : "none"} />
+             </button>
+             <div className="w-px h-6 bg-white/10 mx-1"></div>
+             <button
+               onClick={handleShareWhatsApp}
+               className="p-2 rounded-md text-gray-400 hover:text-green-400 hover:bg-white/5 transition-all"
+               title="Compartir en WhatsApp"
+             >
+               <MessageCircle size={20} />
+             </button>
+             <button
+               onClick={handleNativeShare}
+               className="p-2 rounded-md text-gray-400 hover:text-blue-400 hover:bg-white/5 transition-all"
+               title="Compartir (Nativo)"
+             >
+               <Share2 size={20} />
+             </button>
+             <div className="w-px h-6 bg-white/10 mx-1"></div>
+             <button
+               onClick={handleFeedback}
+               className="p-2 rounded-md text-gray-400 hover:text-yellow-400 hover:bg-white/5 transition-all"
+               title="Enviar Comentarios"
+             >
+               <Mail size={20} />
+             </button>
+          </div>
+
+          {/* Utility Group */}
           <button 
             onClick={handleCopy}
-            className={`flex-1 md:flex-none flex items-center justify-center px-4 py-2 rounded-lg font-bold transition-all shadow-lg text-white border border-white/10
+            className={`flex items-center justify-center px-4 py-2 rounded-lg font-bold transition-all shadow-lg text-white border border-white/10 min-w-[140px]
               ${copied 
                 ? 'bg-green-600 hover:bg-green-700' 
                 : 'bg-[#2e2b52] hover:bg-[#3a3666]'
               }`}
           >
             {copied ? <Check size={18} className="mr-2" /> : <Copy size={18} className="mr-2" />}
-            {copied ? '¡Copiado!' : 'Copiar Texto'}
+            {copied ? '¡Copiado!' : 'Copiar'}
           </button>
 
           <button 
             onClick={handlePrint}
-            className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-winner-purple hover:bg-indigo-600 rounded-lg font-bold transition-all shadow-lg text-white"
+            className="flex items-center justify-center px-4 py-2 bg-winner-purple hover:bg-indigo-600 rounded-lg font-bold transition-all shadow-lg text-white"
           >
             <Printer size={18} className="mr-2" />
-            Imprimir / PDF
+            PDF
           </button>
         </div>
       </div>
