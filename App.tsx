@@ -47,6 +47,7 @@ const App: React.FC = () => {
       setMasterPlan(prev => ({ ...prev, duaContent: result }));
       setIsContextSet(true); // Unlock other tabs
     } catch (err) {
+      console.error("Content generation error:", err);
       setError("Error generando contenido. Intenta de nuevo.");
     } finally {
       setLoading(false);
@@ -66,6 +67,7 @@ const App: React.FC = () => {
       const result = await generatorFn(formData as LessonRequest, lang);
       setMasterPlan(prev => ({ ...prev, [sectionKey]: result }));
     } catch (err) {
+      console.error("Section generation error:", err);
       setError("Error generando la sección. Intenta de nuevo.");
     } finally {
       setLoading(false);

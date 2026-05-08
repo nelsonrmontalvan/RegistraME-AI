@@ -20,6 +20,23 @@ export const PlanDisplay: React.FC<Props> = ({ content, onReset }) => {
     window.print();
   };
 
+  const handleDownloadPDF = async () => {
+    // @ts-ignore - html2pdf is often used without types in simple projects
+    const html2pdf = (await import('html2pdf.js')).default;
+    const element = document.getElementById('plan-content');
+    if (!element) return;
+
+    const opt = {
+      margin: 1,
+      filename: `Planificacion_${new Date().getTime()}.pdf`,
+      image: { type: 'jpeg' as const, quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in' as const, format: 'letter' as const, orientation: 'portrait' as const }
+    };
+
+    html2pdf().from(element).set(opt).save();
+  };
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(content);
@@ -128,11 +145,19 @@ export const PlanDisplay: React.FC<Props> = ({ content, onReset }) => {
           </button>
 
           <button 
+            onClick={handleDownloadPDF}
+            className="flex items-center justify-center px-4 py-2 bg-winner-pink hover:bg-pink-600 rounded-lg font-bold transition-all shadow-lg text-white"
+          >
+            <Download size={18} className="mr-2" />
+            Descargar PDF
+          </button>
+
+          <button 
             onClick={handlePrint}
             className="flex items-center justify-center px-4 py-2 bg-winner-purple hover:bg-indigo-600 rounded-lg font-bold transition-all shadow-lg text-white"
           >
             <Printer size={18} className="mr-2" />
-            PDF
+            Imprimir
           </button>
         </div>
       </div>
@@ -197,7 +222,7 @@ export const PlanDisplay: React.FC<Props> = ({ content, onReset }) => {
       {/* Bottom Download Button */}
       <div className="mt-12 flex flex-col items-center justify-center space-y-4 no-print">
         <button 
-          onClick={handlePrint}
+          onClick={handleDownloadPDF}
           className="group relative flex items-center px-10 py-5 bg-gradient-to-r from-winner-purple to-winner-pink rounded-full font-bold text-xl text-white shadow-[0_0_30px_rgba(236,72,153,0.4)] hover:shadow-[0_0_60px_rgba(236,72,153,0.6)] transition-all transform hover:-translate-y-1 hover:scale-105"
         >
           <div className="absolute inset-0 bg-white/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>

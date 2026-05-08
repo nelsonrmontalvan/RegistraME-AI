@@ -1,10 +1,10 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { LessonRequest } from '../types';
 
 const getClient = () => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    throw new Error("API Key not found in environment variables");
+    throw new Error("GEMINI_API_KEY not found in environment variables");
   }
   return new GoogleGenAI({ apiKey });
 };
@@ -12,7 +12,7 @@ const getClient = () => {
 // Helper for standard config
 const getModelConfig = () => ({
   model: 'gemini-3-flash-preview',
-  config: { thinkingConfig: { thinkingBudget: 0 } }
+  config: { thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL } }
 });
 
 // 1. Core DUA & STEM Experience

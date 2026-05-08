@@ -9,9 +9,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     define: {
-      // Prioriza la variable de entorno del sistema (Vercel) sobre la del archivo .env local
-      // Esto asegura que la llave se lea correctamente en producción
-      'process.env.API_KEY': JSON.stringify(process.env.API_KEY || env.API_KEY)
+      'process.env.GEMINI_API_KEY': JSON.stringify(process.env.GEMINI_API_KEY || env.GEMINI_API_KEY)
     }
   };
 });
